@@ -5,8 +5,8 @@ stages:
     deps:
     - path: params.yaml
       hash: md5
-      md5: 0e4ac149477126c642bb39ca3c0e5ae1
-      size: 909
+      md5: ba442a28bccc888ccbf3df1aedd07efd
+      size: 908
     - path: src/data/load_dataset.py
       hash: md5
       md5: f1043c5f82efb24d96c80d0652f03528
@@ -44,7 +44,7 @@ stages:
           - 2
           tfidf_max_features: 20000
         model:
-          type: linear_svc
+          type: naive_bayes
           logistic_c: 1.0
           logistic_max_iter: 1000
           logistic_solver: lbfgs
@@ -56,14 +56,14 @@ stages:
           nb_alpha: 1.0
         training:
           experiment_name: devlocare-training
-          run_name: lsvc_tfidf_unibi_val
+          run_name: nb_tfidf_unibi_val
           model_output_path: models/model.pkl
     outs:
     - path: metrics/scores.json
       hash: md5
-      md5: 7e7d231c585fb4798a16c012d4c9c8fe
+      md5: efadd92a45575ac4f99082f8d5916805
       size: 232
     - path: models/model.pkl
       hash: md5
-      md5: b9fd391af7ded7468e5731581bde0399
-      size: 2033288
+      md5: 7e6fe2e9e379d66d2d2984a2b89a63c4
+      size: 3711745
