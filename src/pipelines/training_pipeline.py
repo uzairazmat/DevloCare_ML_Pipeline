@@ -64,6 +64,7 @@ def run_training():
     ngram_range_cfg = feat_cfg["tfidf_ngram_range"]
     train_cfg = TrainConfig(
       test_size=data_cfg["test_size"],
+      val_size=data_cfg.get("val_size", 0.15),
       random_state=data_cfg["random_state"],
       model_type=model_cfg["type"],
       tfidf_ngram_range=(ngram_range_cfg[0], ngram_range_cfg[1]),

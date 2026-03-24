@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TrainConfig:
   test_size: float
+  val_size: float
   random_state: int
   model_type: str
   tfidf_ngram_range: tuple[int, int]
@@ -47,7 +48,6 @@ def _build_model(cfg: TrainConfig) -> Any:
       max_iter=cfg.logistic_max_iter,
       solver=cfg.logistic_solver,
       random_state=cfg.random_state,
-      multi_class="auto",
     )
   elif cfg.model_type == "random_forest":
     return RandomForestClassifier(
@@ -74,14 +74,17 @@ def train_and_evaluate(
   cfg: TrainConfig,
 ) -> Tuple[Pipeline, dict]:
   """Train text classifier and return fitted pipeline + metrics."""
-  logger.info("Splitting data into train and test sets")
-  X_train, X_test, y_train, y_test = train_test_split(
-    X,
-    y,
-    test_size=cfg.test_size,
-    random_state=cfg.random_state,
-    stratify=y if len(np.unique(y)) > 1 else None,
+  logger.info("Splitting data into train / val / test sets")
+  stratify = y if len(np.unique(y)) > 1 else None
+  X_temp, X_test, y_temp, y_test = train_test_split(
+    X, y, test_size=cfg.test_size, random_state=cfg.random_state, stratify=stratify,
   )
+  val_ratio = cfg.val_size / (1.0 - cfg.test_size)
+  X_train, X_val, y_train, y_val = train_test_split(
+    X_temp, y_temp, test_size=val_ratio, random_state=cfg.random_state,
+    stratify=y_temp if len(np.unique(y_temp)) > 1 else None,
+  )
+  logger.info("Split sizes — train: %d  val: %d  test: %d", len(X_train), len(X_val), len(X_test))
 
   logger.info("Training model")
   model = _build_model(cfg)
@@ -102,13 +105,16 @@ def train_and_evaluate(
   pipeline.fit(X_train, y_train)
   logger.info("Model training completed")
 
-  y_pred = pipeline.predict(X_test)
+  y_val_pred = pipeline.predict(X_val)
+  y_test_pred = pipeline.predict(X_test)
 
   metrics = {
-    "accuracy": float(accuracy_score(y_test, y_pred)),
-    "macro_precision": float(precision_score(y_test, y_pred, average="macro", zero_division=0)),
-    "macro_recall": float(recall_score(y_test, y_pred, average="macro", zero_division=0)),
-    "macro_f1": float(f1_score(y_test, y_pred, average="macro", zero_division=0)),
+    "val_accuracy": float(accuracy_score(y_val, y_val_pred)),
+    "val_macro_f1": float(f1_score(y_val, y_val_pred, average="macro", zero_division=0)),
+    "accuracy": float(accuracy_score(y_test, y_test_pred)),
+    "macro_precision": float(precision_score(y_test, y_test_pred, average="macro", zero_division=0)),
+    "macro_recall": float(recall_score(y_test, y_test_pred, average="macro", zero_division=0)),
+    "macro_f1": float(f1_score(y_test, y_test_pred, average="macro", zero_division=0)),
   }
   logger.info("Evaluation metrics: %s", metrics)
 
