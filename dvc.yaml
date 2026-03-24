@@ -1,0 +1,20 @@
+stages:
+  train:
+    cmd: python -m src.pipelines.training_pipeline
+    deps:
+      - src/pipelines/training_pipeline.py
+      - src/models/train.py
+      - src/features/preprocess.py
+      - src/data/load_dataset.py
+      - params.yaml
+      - src/data/raw/Symptom2Disease.csv
+    params:
+      - data
+      - features
+      - model
+      - training
+    outs:
+      - models/model.pkl
+    metrics:
+      - metrics/scores.json:
+          cache: false

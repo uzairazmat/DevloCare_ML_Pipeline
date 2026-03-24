@@ -1,0 +1,12 @@
+numpy
+pandas
+scikit-learn
+mlflow
+dvc
+dagshub
+pyyaml
+python-dotenv
+matplotlib
+seaborn
+jupyter
+ipykernel

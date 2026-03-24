@@ -1,0 +1,5 @@
+outs:
+- md5: eeda3e295d50116a3c0aecaa9037df4d
+  size: 229852
+  hash: md5
+  path: Symptom2Disease.csv
