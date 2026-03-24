@@ -77,6 +77,7 @@ def run_training():
       svm_c=model_cfg.get("svm_c", 1.0),
       svm_max_iter=model_cfg.get("svm_max_iter", 2000),
       nb_alpha=model_cfg.get("nb_alpha", 1.0),
+      cv_folds=training_cfg.get("cv_folds", 5),
     )
 
     with mlflow.start_run(run_name=training_cfg["run_name"]):

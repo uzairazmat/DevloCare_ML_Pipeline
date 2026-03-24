@@ -9,7 +9,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC
@@ -38,6 +38,7 @@ class TrainConfig:
   svm_max_iter: int = 2000
   # Naive Bayes
   nb_alpha: float = 1.0
+  cv_folds: int = 5
 
 
 def _build_model(cfg: TrainConfig) -> Any:
@@ -105,10 +106,16 @@ def train_and_evaluate(
   pipeline.fit(X_train, y_train)
   logger.info("Model training completed")
 
+  # K-Fold CV on training data — strong overfitting signal
+  cv_scores = cross_val_score(pipeline, X_train, y_train, cv=cfg.cv_folds, scoring="accuracy")
+  logger.info("CV scores (%d folds): %s  mean=%.4f  std=%.4f", cfg.cv_folds, cv_scores, cv_scores.mean(), cv_scores.std())
+
   y_val_pred = pipeline.predict(X_val)
   y_test_pred = pipeline.predict(X_test)
 
   metrics = {
+    "cv_mean_accuracy": float(cv_scores.mean()),
+    "cv_std_accuracy": float(cv_scores.std()),
     "val_accuracy": float(accuracy_score(y_val, y_val_pred)),
     "val_macro_f1": float(f1_score(y_val, y_val_pred, average="macro", zero_division=0)),
     "accuracy": float(accuracy_score(y_test, y_test_pred)),
