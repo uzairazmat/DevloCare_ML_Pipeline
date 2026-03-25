@@ -25,8 +25,8 @@ stages:
       size: 4983
     - path: src/pipelines/training_pipeline.py
       hash: md5
-      md5: f7a620cb5c8f4d24c2548a481ac3187d
-      size: 4087
+      md5: 62b320afc8aef666c04228708d6b5949
+      size: 4105
     params:
       params.yaml:
         data:

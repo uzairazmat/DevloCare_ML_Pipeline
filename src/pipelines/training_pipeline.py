@@ -102,7 +102,7 @@ def run_training():
 
       joblib.dump(model, model_path)
       logger.info("Saved trained model to %s", model_path)
-      mlflow.log_artifact(str(model_path))
+      mlflow.sklearn.log_model(model, artifact_path="model")
 
   except Exception as exc:
     logger.exception("Training pipeline failed with an exception")
